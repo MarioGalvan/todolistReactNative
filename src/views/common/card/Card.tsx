@@ -1,13 +1,5 @@
 import * as React from 'react';
-import {
-  Card,
-  Title,
-  Paragraph,
-  IconButton,
-  MD3Colors,
-  Avatar,
-  Text,
-} from 'react-native-paper';
+import {Card, IconButton, Text} from 'react-native-paper';
 import {StyleSheet} from 'react-native';
 import {theme} from '../../../helpers/theme';
 import {deleteTaskByID} from '../../../helpers/user';
@@ -20,28 +12,51 @@ type CardCommonProps = {
 };
 
 const CardCommon = ({item, userId, tasks, handleEdit}: CardCommonProps) => {
-  const {name, responsable, content, id} = item;
+  const {name, responsable, content, id, status} = item;
   return (
     <Card style={styles.card} mode="elevated">
       <Card.Title
-        title={name}
+        title={`${name} - ${responsable}`}
         titleStyle={{
           fontSize: 20,
           color: '#191919',
           fontFamily: 'Montserrat-Bold',
         }}
-        left={props => (
-          <Avatar.Icon
-            style={{backgroundColor: '#fff'}}
-            {...props}
-            icon="checkbook"
-          />
-        )}
       />
 
       <Card.Content>
         <Text style={styles.textcontent}>{content}</Text>
-        <Text style={styles.textcontent}>Responsable: {responsable}</Text>
+        {/* <Text style={styles.textcontent}>Responsable: {responsable}</Text> */}
+      </Card.Content>
+
+      <Card.Content
+        style={{
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          
+          marginTop: 20,
+          top: 10,
+        }}>
+        {item.status ? (
+          <Text
+            style={{
+              color: theme.success,
+              fontFamily: 'Montserrat-Bold',
+              fontSize: 18,
+            }}>
+            Completada
+          </Text>
+        ) : (
+          <Text
+            style={{
+              color: theme.danger,
+              fontFamily: 'Montserrat-Bold',
+              fontSize: 18,
+            }}>
+            Pendiente
+          </Text>
+        )}
       </Card.Content>
 
       <Card.Actions>
@@ -78,7 +93,7 @@ const styles = StyleSheet.create({
   textcontent: {
     fontSize: 16,
     color: 'grey',
-    fontFamily: 'Montserrat',
+    fontFamily: 'Montserrat-Bold',
   },
 });
 

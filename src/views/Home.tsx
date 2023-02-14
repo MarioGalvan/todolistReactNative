@@ -5,11 +5,10 @@ import {HomeConfig, theme} from '../helpers/theme';
 import {CardTask} from './CardTask';
 import CardCommon from './common/card/Card';
 import firestore from '@react-native-firebase/firestore';
+import {useIsFocused} from '@react-navigation/native';
+import DeviceInfo from 'react-native-device-info';
 
-type HomeProps = {
-  userId: string;
-};
-const Home = ({userId}: HomeProps) => {
+const Home = () => {
   const [notesData, setnotesData] = useState([]);
   const [visible, setVisible] = useState({
     type: 'add',
@@ -18,6 +17,8 @@ const Home = ({userId}: HomeProps) => {
   });
   const [totalTask, settotalTask] = useState(0);
   const [taskToEdit, settaskToEdit] = useState();
+  const isFocused = useIsFocused();
+  const [userId, setuserId] = useState('');
 
   const hidden = () => {
     setVisible({
@@ -36,16 +37,37 @@ const Home = ({userId}: HomeProps) => {
   };
 
   React.useEffect(() => {
+    async function getDeviceId() {
+      const deviceId = await DeviceInfo.syncUniqueId();
+      return deviceId;
+    }
+    getDeviceId().then(deviceId => {
+      setuserId(deviceId);
+      firestore()
+      .collection('users')
+      .doc(userId)
+      .onSnapshot(documentSnapshot => {
+        let tasks = documentSnapshot.data()?.tasks;
+        console.log('documentSnapshot.data()', documentSnapshot.data(), userId);
+        settotalTask(tasks?.length ?? 0);
+        setnotesData(tasks || []);
+        console.log('User data: ', tasks);
+      });
+    });
+  }, []);
+
+  React.useEffect(() => {
     firestore()
       .collection('users')
       .doc(userId)
       .onSnapshot(documentSnapshot => {
         let tasks = documentSnapshot.data()?.tasks;
+        console.log('documentSnapshot.data()', documentSnapshot.data(), userId);
         settotalTask(tasks?.length ?? 0);
         setnotesData(tasks || []);
         console.log('User data: ', tasks);
       });
-  }, []);
+  }, [isFocused, userId]);
 
   React.useEffect(() => {
     if (visible.idEdit) {
@@ -83,8 +105,14 @@ const Home = ({userId}: HomeProps) => {
             Nueva
           </Button>
         </View>
-        {visible?.visible && visible?.type == 'add' ? (
-          <CardTask userId={userId} close={hidden} />
+        {visible?.visible ? (
+          <CardTask
+            task={taskToEdit}
+            editing={visible.idEdit ? true : false}
+            userId={userId}
+            close={hidden}
+            notesData={notesData}
+          />
         ) : (
           <>
             {notesData.length > 0 ? (
@@ -94,10 +122,6 @@ const Home = ({userId}: HomeProps) => {
                     tasks={notesData}
                     userId={userId}
                     item={item}
-                    // id={item.id}
-                    // content={item.content}
-                    // name={item.name}
-                    // responsable={item.responsable}
                     handleEdit={handleEdit}
                   />
                 );
@@ -120,6 +144,7 @@ const styles = StyleSheet.create({
 
   mainTitle: {
     fontSize: 25,
+    color: '#191919',
     fontFamily: 'Montserrat-Bold',
     margin: 20,
   },

@@ -6,7 +6,8 @@ import {addInitialData} from './helpers/user';
 import Home from './views/Home';
 import InitialPage from './views/initialPage';
 import {Provider as PaperProvider} from 'react-native-paper';
-import { theme } from './helpers/theme';
+import {theme} from './helpers/theme';
+import {NavigationContainer} from '@react-navigation/native';
 
 function App(): JSX.Element {
   const [isFirstTime, setisFirstTime] = useState(false);
@@ -38,12 +39,18 @@ function App(): JSX.Element {
 
   return (
     <PaperProvider>
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentInsetAdjustmentBehavior="automatic">
-          <StatusBar backgroundColor={theme.primaryColor} />
-          {isFirstTime ? <InitialPage userId={userId} /> : <Home  userId={userId} />}
-        </ScrollView>
-      </SafeAreaView>
+      <NavigationContainer>
+        <SafeAreaView style={styles.container}>
+          <ScrollView contentInsetAdjustmentBehavior="automatic">
+            <StatusBar backgroundColor={theme.primaryColor} />
+            {isFirstTime ? (
+              <InitialPage userId={userId} />
+            ) : (
+              <Home userId={userId} />
+            )}
+          </ScrollView>
+        </SafeAreaView>
+      </NavigationContainer>
     </PaperProvider>
   );
 }
