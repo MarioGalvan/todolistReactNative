@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Button,
   Image,
   StyleSheet,
   Text,
@@ -9,7 +8,7 @@ import {
 } from 'react-native';
 import {updateInitialData} from '../helpers/user';
 const studentImage =
-  'https://evernote.com/c/assets/marketing/campaigns/unidays/student-illo-v2-2.png';
+  'https://firebasestorage.googleapis.com/v0/b/todolist-41f67.appspot.com/o/student-illo-v2-2.png?alt=media';
 
 const ViewInfo = {
   image: studentImage,
@@ -59,6 +58,7 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: 'black',
     fontWeight: 'bold',
+    fontFamily: 'Montserrat-Bold',
     margin: 10,
   },
   subtitle: {
@@ -67,6 +67,7 @@ const styles = StyleSheet.create({
     margin: 15,
     width: 300,
     textAlign: 'center',
+    fontFamily: 'Montserrat',
     paddingBottom: 40,
   },
 

@@ -5,6 +5,8 @@ import firestore from '@react-native-firebase/firestore';
 import {addInitialData} from './helpers/user';
 import Home from './views/Home';
 import InitialPage from './views/initialPage';
+import {Provider as PaperProvider} from 'react-native-paper';
+import { theme } from './helpers/theme';
 
 function App(): JSX.Element {
   const [isFirstTime, setisFirstTime] = useState(false);
@@ -15,7 +17,6 @@ function App(): JSX.Element {
       const deviceId = await DeviceInfo.syncUniqueId();
       return deviceId;
     }
-
     getDeviceId().then(deviceId => {
       setuserId(deviceId);
     });
@@ -31,26 +32,26 @@ function App(): JSX.Element {
           setisFirstTime(true);
         }
         setisFirstTime(documentSnapshot.data()?.initial);
-        console.log('User data: ', documentSnapshot.data());
       });
     return () => subscriber();
   }, [userId]);
 
-  console.log('isFirstTime', isFirstTime);
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentInsetAdjustmentBehavior="automatic">
-        <StatusBar backgroundColor="#FDD260" />
-        {isFirstTime ? <InitialPage userId={userId} /> : <Home />}
-      </ScrollView>
-    </SafeAreaView>
+    <PaperProvider>
+      <SafeAreaView style={styles.container}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic">
+          <StatusBar backgroundColor={theme.primaryColor} />
+          {isFirstTime ? <InitialPage userId={userId} /> : <Home  userId={userId} />}
+        </ScrollView>
+      </SafeAreaView>
+    </PaperProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F8F8',
   },
   item: {
     padding: 10,
