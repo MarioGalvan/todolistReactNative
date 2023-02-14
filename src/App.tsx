@@ -1,96 +1,61 @@
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import { getUniqueId, getManufacturer } from 'react-native-device-info';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+import React, {useState} from 'react';
+import DeviceInfo from 'react-native-device-info';
+import {SafeAreaView, ScrollView, StatusBar, StyleSheet} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import {
-  Colors,
-  Header,
-} from 'react-native/Libraries/NewAppScreen';
+import {addInitialData} from './helpers/user';
 import Home from './views/Home';
+import InitialPage from './views/initialPage';
 
 function App(): JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const [isFirstTime, setisFirstTime] = useState(false);
+  const [userId, setuserId] = useState('');
 
   React.useEffect(() => {
-    async function getUniqueId(): Promise<string> {
-      const uniqueId:any = await getUniqueId();
-      const manufacturer = await getManufacturer();
-      console.log('uniqueId', uniqueId);
-      console.log('manufacturer', manufacturer);
-      return uniqueId;
+    async function getDeviceId() {
+      const deviceId = await DeviceInfo.syncUniqueId();
+      return deviceId;
     }
 
-    getUniqueId();
-    
-    const userDocument = firestore().collection('Users').doc('ABC');
+    getDeviceId().then(deviceId => {
+      setuserId(deviceId);
+    });
   }, []);
 
+  React.useEffect(() => {
+    const subscriber = firestore()
+      .collection('users')
+      .doc(userId)
+      .onSnapshot(documentSnapshot => {
+        if (documentSnapshot.data() === undefined) {
+          addInitialData(userId);
+          setisFirstTime(true);
+        }
+        setisFirstTime(documentSnapshot.data()?.initial);
+        console.log('User data: ', documentSnapshot.data());
+      });
+    return () => subscriber();
+  }, [userId]);
 
+  console.log('isFirstTime', isFirstTime);
   return (
-
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <Home/>
-        {/* <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View> */}
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentInsetAdjustmentBehavior="automatic">
+        <StatusBar backgroundColor="#FDD260" />
+        {isFirstTime ? <InitialPage userId={userId} /> : <Home />}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
+  item: {
+    padding: 10,
     fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
+    height: 44,
   },
 });
 
