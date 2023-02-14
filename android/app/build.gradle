@@ -119,6 +119,13 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+
+      release {
+      storeFile file('your_key_name.keystore')
+      storePassword '12345678'
+      keyAlias 'todolistrelease'
+      keyPassword '12345678'
+    }
     }
     buildTypes {
         debug {

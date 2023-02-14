@@ -43,30 +43,27 @@ const Home = () => {
     }
     getDeviceId().then(deviceId => {
       setuserId(deviceId);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if(userId){
       firestore()
       .collection('users')
       .doc(userId)
       .onSnapshot(documentSnapshot => {
         let tasks = documentSnapshot.data()?.tasks;
-        console.log('documentSnapshot.data()', documentSnapshot.data(), userId);
+        console.log('documentSnapshot.data()', documentSnapshot.data());
         settotalTask(tasks?.length ?? 0);
         setnotesData(tasks || []);
         console.log('User data: ', tasks);
       });
-    });
-  }, []);
+    }
 
-  React.useEffect(() => {
-    firestore()
-      .collection('users')
-      .doc(userId)
-      .onSnapshot(documentSnapshot => {
-        let tasks = documentSnapshot.data()?.tasks;
-        console.log('documentSnapshot.data()', documentSnapshot.data(), userId);
-        settotalTask(tasks?.length ?? 0);
-        setnotesData(tasks || []);
-        console.log('User data: ', tasks);
-      });
+    console.log("infoconnection=>",{
+      userId,
+      isFocused
+    })
   }, [isFocused, userId]);
 
   React.useEffect(() => {
